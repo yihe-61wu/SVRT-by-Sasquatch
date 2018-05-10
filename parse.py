@@ -36,11 +36,11 @@ class Shape():
         self.merge_borders = []
         self.name = None
         self.scale = 1.0
-        
+
         self.outline = mask_outline(mask)
-        
+
         self.x,self.y,self.centered = center_mask(mask,self.mass)
-        
+
     def same_shape(self,other):
         d = np.logical_xor(self.centered,other.centered)
         d = np.sum(d)
@@ -85,7 +85,7 @@ def fill_center(mask):
     mask = mask*42
     fill(mask,0,0,0,99)
     return 1 - (mask == 99)
-    
+
 def connected_components(i):
     w = i.shape[0]
     h = i.shape[1]
@@ -146,7 +146,7 @@ def connected_components(i):
     # pull the shapes out of the picture again
     for j in range(len(shapes)):
         shapes[j] = fill_center(i == (j+1))
-    
+
     i = replace(i,-1,BACKGROUND)
     if False:
         view(i*30)
@@ -191,7 +191,7 @@ def compute_qualitative(shapes):
             if s == z or s in z.contains or z in s.contains: continue
             if s.touches(z):
                 s.borders.append(z)
-        
+
 
 def analyze(filename):
     i = scipy.misc.imread(filename,1)
@@ -244,7 +244,7 @@ def analyze(filename):
         i_name = None
         for j in range(i):
             # is class i a rescaling of class j?
-            rescaling = any([ s.rescaled_shape(sp) 
+            rescaling = any([ s.rescaled_shape(sp)
                               for s in ki
                               for sp in identical[j] ])
             if rescaling:
@@ -277,7 +277,7 @@ def analyze(filename):
                 os = os + "borders(" + str(s) + ", " + str(sp) + ")\n"
     return os
 
-    
+
 sys.setrecursionlimit(128*128*2)
 
 jobs = []
@@ -306,7 +306,3 @@ for j in jobs:
     with open(o,"w") as f:
         f.write(a)
     print ""
-
-
- 
-
