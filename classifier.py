@@ -20,7 +20,7 @@ def run_output(training,test = []):
     else:
         return marginal
 
-def classifier_accuracies(P,N,S):
+def classifier_accuracies(P, N=3, S=20):
     positives = [ "pictures/%i_1_%i" % (P,x) for x in range(100) ]
     negatives = [ "pictures/%i_0_%i" % (P,x) for x in range(100) ]
     total_clean = len(positives) + len(negatives)
@@ -59,7 +59,7 @@ def classifier_accuracies(P,N,S):
     return accuracies
 #    return accuracy,math.sqrt(error/float(S))
 
-def Bayesian_classifier(P,N,S):
+def Bayesian_classifier(P, N=3, S=20):
     positives = [ "pictures/%i_1_%i" % (P,x) for x in range(100) ]
     negatives = [ "pictures/%i_0_%i" % (P,x) for x in range(100) ]
 
