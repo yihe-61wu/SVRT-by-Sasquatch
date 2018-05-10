@@ -1,4 +1,4 @@
-import os
+import os, os.path
 import sys
 
 
@@ -278,31 +278,35 @@ def analyze(filename):
     return os
 
 
-sys.setrecursionlimit(128*128*2)
+def main(input_dir, output_dir):
+    print("INPUT DIR: " + input_dir)
+    print("OUTPUT DIR: " + output_dir)
+    print("")
 
-jobs = []
+    sys.setrecursionlimit(128*128*2)
 
-arguments = sys.argv[1:]
-if len(arguments) == 0:
-    arguments = [str(i) for i in range(1,24) ]
-for argument in arguments:
-    if argument.isdigit():
-        argument = 'svrt/results_problem_%s' % argument
-    if os.path.isdir(argument):
-        for f in os.listdir(argument):
-            if f.endswith(".png"):
-                jobs = jobs + [argument + "/" + f]
-    else:
-        jobs = jobs + [argument]
-for j in jobs:
-    print j
-    a = analyze(j)
-    print a
-    o = j[:-3]+"h"
-    # useful special case
-    m = re.match("svrt/results_problem_(\d+)/sample_(\d)_(\d+).png",j)
-    if m:
-        o = "pictures/%s_%s_%i" % (m.group(1),m.group(2),int(m.group(3)))
-    with open(o,"w") as f:
-        f.write(a)
-    print ""
+    jobs = []
+    for root, dirnames, fnames in os.walk(input_dir):
+        for fname in fnames:
+            if os.path.splitext(fname)[1].lower() == '.png':
+                jobs.append(os.path.join(root, fname))
+
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
+
+    for j in jobs:
+        print(j)
+        a = analyze(j)
+        print(a)
+        o = os.path.join(output_dir, j[len(input_dir)+1 : -4] + '.txt')
+        print(o)
+        oo = os.path.split(o)[0]
+        if not os.path.isdir(oo):
+            os.makedirs(oo)
+        with open(o, 'w') as f:
+            f.write(a)
+        print('')
+
+
+if __name__ == '__main__':
+    main(*sys.argv[1:])
