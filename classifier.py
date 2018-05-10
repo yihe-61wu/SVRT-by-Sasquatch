@@ -24,20 +24,20 @@ def classifier_accuracies(P,N,S):
     positives = [ "pictures/%i_1_%i" % (P,x) for x in range(100) ]
     negatives = [ "pictures/%i_0_%i" % (P,x) for x in range(100) ]
     total_clean = len(positives) + len(negatives)
-    
+
     accuracies = []
     for s in range(S):
         p = random.sample(positives,N)
         n = random.sample(negatives,N)
         training = p+n
-        
+
         positives_test = [ h for h in positives if (not (h in training)) ]
         negatives_test = [ h for h in negatives if (not (h in training)) ]
         test = positives_test + negatives_test
-        
+
         positive_likelihoods = run_output(p,test)
         negative_likelihoods = run_output(n,test)
-        
+
         correct = 0
         test_size = len(positives_test) + len(negatives_test)
         for j in range(test_size):
@@ -62,7 +62,7 @@ def classifier_accuracies(P,N,S):
 def Bayesian_classifier(P,N,S):
     positives = [ "pictures/%i_1_%i" % (P,x) for x in range(100) ]
     negatives = [ "pictures/%i_0_%i" % (P,x) for x in range(100) ]
-    
+
     accuracies = []
     for s in range(S):
         p = random.sample(positives,N+1)
@@ -72,13 +72,13 @@ def Bayesian_classifier(P,N,S):
         class_B = n[1:]
         test_a = p[0]
         test_be = n[0]
-        
+
         # likelihood of each cluster on its own
         likelihood_a = run_output(class_a)
         likelihood_be = run_output(class_B)
         if VERBOSE:
             print "A,B = ",likelihood_a,likelihood_be
-        
+
         # likelihood_of_each_cluster with a test point added
         a_test_b = run_output(class_a + [test_be])
         a_test_a = run_output(class_a + [test_a])
@@ -89,7 +89,7 @@ def Bayesian_classifier(P,N,S):
             print "A+b = ",a_test_b
             print "B+a = ",b_test_a
             print "B+b = ",b_test_b
-        
+
         # how did we do with test a?
         marginal_a = a_test_a + likelihood_be
         marginal_b = b_test_a + likelihood_a
@@ -99,7 +99,7 @@ def Bayesian_classifier(P,N,S):
             accuracies.append(1)
         else:
             accuracies.append(0)
-            
+
         # how did we do with test b?
         marginal_a = a_test_b + likelihood_be
         marginal_b = b_test_b + likelihood_a
@@ -110,7 +110,7 @@ def Bayesian_classifier(P,N,S):
         else:
             accuracies.append(1)
     return accuracies
-        
+
 
 if __name__ == "__main__":
     VERBOSE = True
@@ -119,5 +119,3 @@ if __name__ == "__main__":
     S = int(sys.argv[3]) # number of samples
 #    print classifier_accuracies(P,N,S)
     print Bayesian_classifier(P,N,S)
-
-    
