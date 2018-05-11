@@ -124,7 +124,7 @@ def conditional(p,q,r):
 def compressionLoop(pr,mdl,verbose = True,timeout = None,enforce_structure = True):
     global recent_model,recent_total_time
     constrain(Real("global_cost_function") == mdl)
-    with open('.'.join(sys.argv) + '.smt2','w') as f:
+    with open('.'.join(sys.argv).replace('/', '.') + '.smt2','w') as f:
         f.write(slv.to_smt2())
     if timeout:
         slv.set("timeout",timeout*1000)
