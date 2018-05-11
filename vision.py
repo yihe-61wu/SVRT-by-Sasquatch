@@ -53,8 +53,8 @@ class Observation:
         if len(self.containment) > 0: print '\tCONTAINS: %s' % str(self.containment)
 
 def load_picture(picture_file):
-    if picture_file[0] != 'p':
-        picture_file = "pictures/" + picture_file
+    #if picture_file[0] != 'p':
+    #    picture_file = "pictures/" + picture_file
     with open(picture_file,'r') as picture:
         picture = picture.readlines()
         shapes = eval('['+picture[0]+']')
