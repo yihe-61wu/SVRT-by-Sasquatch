@@ -298,7 +298,8 @@ def main(input_dir, output_dir):
         print(j)
         a = analyze(j)
         print(a)
-        o = os.path.join(output_dir, j[len(input_dir)+1 : -4] + '.txt')
+        o = os.path.join(output_dir,
+                         j[len(os.path.join(input_dir, '')) : -4] + '.txt')
         print(o)
         oo = os.path.split(o)[0]
         if not os.path.isdir(oo):
