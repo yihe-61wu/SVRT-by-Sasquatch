@@ -20,9 +20,9 @@ def run_output(training,test = []):
     else:
         return marginal
 
-def classifier_accuracies(P, N=3, S=20):
-    positives = [ "pictures/%i_1_%i" % (P,x) for x in range(100) ]
-    negatives = [ "pictures/%i_0_%i" % (P,x) for x in range(100) ]
+def classifier_accuracies(positive_paths, negative_paths, N=3, S=20):
+    positives = positive_paths
+    negatives = negative_paths
     total_clean = len(positives) + len(negatives)
 
     accuracies = []
@@ -59,9 +59,9 @@ def classifier_accuracies(P, N=3, S=20):
     return accuracies
 #    return accuracy,math.sqrt(error/float(S))
 
-def Bayesian_classifier(P, N=3, S=20):
-    positives = [ "pictures/%i_1_%i" % (P,x) for x in range(100) ]
-    negatives = [ "pictures/%i_0_%i" % (P,x) for x in range(100) ]
+def Bayesian_classifier(positive_paths, negative_paths, N=3, S=20):
+    positives = positive_paths
+    negatives = negative_paths
 
     accuracies = []
     for s in range(S):
@@ -117,5 +117,8 @@ if __name__ == "__main__":
     P = int(sys.argv[1]) # which data set are we using
     N = int(sys.argv[2]) # number of positive and negative training examples
     S = int(sys.argv[3]) # number of samples
-#    print classifier_accuracies(P,N,S)
-    print Bayesian_classifier(P,N,S)
+    # Generate paths for positive and negative samples
+    positive_paths = [ "pictures/%i_1_%i" % (P,x) for x in range(100) ]
+    negative_paths = [ "pictures/%i_0_%i" % (P,x) for x in range(100) ]
+    # print classifier_accuracies(positive_paths, negative_paths, N, S)
+    print Bayesian_classifier(positive_paths, negative_paths, N, S)
