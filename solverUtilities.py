@@ -58,7 +58,7 @@ def pick_one(K):
     pick_exactly_one(indicators)
     return indicators
 def permutation_indicators(K):
-    indicators = [ [ boolean() 
+    indicators = [ [ boolean()
                      for i in range(K) ]
                    for j in range(K) ]
     for r in range(K):
@@ -66,7 +66,7 @@ def permutation_indicators(K):
     for c in range(K):
         pick_exactly_one([indicators[i][c] for i in range(K) ])
     return indicators
-            
+
 def booleans(K):
     return [ boolean() for i in range(K) ]
 def real_numbers(K):
@@ -143,7 +143,7 @@ def compressionLoop(pr,mdl,verbose = True,timeout = None,enforce_structure = Tru
         solver_time += d
         up = extract_real(m,mdl)
         slv.add(mdl < up)
-        if verbose: 
+        if verbose:
             print "Found model in %f sec" % d
             print(pr(m))
             print "MDL", up
@@ -243,7 +243,7 @@ def generator(d, production):
     for child,multiplicity in child_frequencies.iteritems():
         for j in range(multiplicity):
             recursive["%s/%i" % (child,j+1)] = generator(d-1, child)
-            
+
     # returns the recursive invocations for the ith rule
     def getRecursive(i, slot):
         assert slot == 0 or slot == 1 or slot == 2
@@ -309,7 +309,7 @@ def primitive_angle():
     x,y = structural((real(), real()))
     constrain_angle(x,y)
     def e(i): return x,y
-    def p(m): 
+    def p(m):
         return '(angle %i)' % int(math.atan2(extract_real(m,y),extract_real(m,x))*180.0/math.pi)
     return e,10.0,p
 primitive_rule('ANGLE', primitive_angle)
@@ -336,19 +336,19 @@ def imperative_generator(production, d, initial_production = None):
         return (lambda state,i: []),0,(lambda m: "")
     p = initial_production if initial_production else production
     first_evaluate, first_length, first_print = generator(1,p)
-    
+
     rest_evaluate, rest_length, rest_print = imperative_generator(production, d-1)
-        
+
     def evaluate(state,i):
         first_output, first_state = first_evaluate((state,i))
         rest_output = rest_evaluate(first_state,i)
         return [first_output]+rest_output
     def printer(m):
         return first_print(m) + "\n" + rest_print(m)
-    
+
     mdl = real()
     constrain(mdl == first_length + rest_length)
-    
+
     return evaluate,mdl,printer
 
 def distribution_mode(d):

@@ -40,7 +40,7 @@ class Shape():
         if self.scale == 0.0:
             return "%i@(%i,%i)" % (self.name,self.x,self.y)
         return "%i@(%i,%i)x%f" % (self.name, self.x, self.y, math.exp(self.scale))
-        
+
 
 class Observation:
     def __init__(self,c,k,b):
@@ -103,7 +103,7 @@ def parse_arguments():
 def set_degrees_of_freedom(observations):
     global picture_size,LS,LK,LB
     # remove incorrectly parsed training data
-    picture_size = distribution_mode([ len(observation.coordinates) 
+    picture_size = distribution_mode([ len(observation.coordinates)
                                        for observation in observations ])
     observations = [o for o in observations
                     if len(o.coordinates) == picture_size]
@@ -114,18 +114,18 @@ def set_degrees_of_freedom(observations):
     LB = max([ len(o.bordering) for o in observations])
 
     return observations
-    
+
 def move_turtle(x,y,tx,ty,d,ax,ay):
     constrain(d > 0)
     nx,ny = rotate_turtle(tx,ty,ax,ay)
-    
+
     return x+d*nx,y+d*ny,nx,ny
 
 def rotate_turtle(tx,ty,ax,ay):
     # compute new angle using trig identities
     nx = real()
     ny = real()
-    
+
     constrain(nx == tx*ax-ty*ay)
     constrain(ny == tx*ay+ty*ax)
 
@@ -153,7 +153,7 @@ def define_grammar(LZ,LP,LD,LA):
             # WARNING: relatively untested new alternate encoding of move command
             indexed_rule('ORIENTATION-INDEX', 'a', LA,
                          lambda (t,i): i['angles'])
-                        
+
             rule('ORIENTATION', [],
                  lambda m: "0deg",
                  lambda ((x,y,dx,dy),i): (dx,dy))
@@ -176,7 +176,7 @@ def define_grammar(LZ,LP,LD,LA):
                  lambda ((x,y,dx,dy),i), d, (dxp,dyp): (x+d*dxp, y+d*dyp, dxp, dyp))
             indexed_rule('DISTANCE', 'l', LD,
                          lambda (t,i): i['distances'])
-    
+
     indexed_rule('POSITION', 'r', LP,
                  lambda (t,i): i['positions'])
     rule('LOCATE', ['POSITION'],
@@ -193,7 +193,7 @@ def define_grammar(LZ,LP,LD,LA):
     rule('FLIP',[],
          lambda m: '(flip-X)',
          lambda ((x,y,dx,dy),i): (128-x,y,dx,dy))
-    
+
     rule('LOCATE',['JITTER'],
          lambda m,j: j,
          lambda ((x,y,dx,dy),i), (jx,jy): (x+jx,y+jy,dx,dy))
@@ -201,7 +201,7 @@ def define_grammar(LZ,LP,LD,LA):
          lambda m: '(jitter)',
          lambda (s,i): (i['jitter-x'],i['jitter-y']))
 
-    
+
     rule('INITIALIZE',[],
          lambda m: "(teleport r[0])",
          lambda (t,i): (i['positions'][0][0],i['positions'][0][1],
@@ -210,10 +210,10 @@ def define_grammar(LZ,LP,LD,LA):
     rule('INITIAL-SHAPE',[],
          lambda m: '(draw s[0])',
          lambda (t,i): i['shapes'][0])
-    
+
     indexed_rule('SHAPE-INDEX', 's', LS,
                  lambda (t,i): i['shapes'])
-    
+
     rule('SHAPE',['SHAPE-INDEX'],
          lambda m,i: '(draw %s)' % i,
          lambda i,s: s)
@@ -227,14 +227,14 @@ def define_grammar(LZ,LP,LD,LA):
         rule('INITIAL-SHAPE',['SHAPE-SIZE'],
              lambda m,z: '(draw s[0] :scale z)',
              lambda (t,i),z: (i['shapes'][0][0],i['shapes'][0][1]+z))
-    
+
     rule('DRAW-ACTION',['LOCATE','SHAPE'],
          lambda m,l,s: l + "\n" + s,
          lambda state, (x,y,dx,dy), (s,z): ((x,y,s,z),(x,y,dx,dy)))
     rule('INITIAL-DRAW',['INITIALIZE','INITIAL-SHAPE'],
          lambda m,l,s: l + "\n" + s,
          lambda state, (x,y,dx,dy), (s,z): ((x,y,s,z),(x,y,dx,dy)))
-    
+
     rule('TOPOLOGY-OPTION',[],
          lambda m: "",
          lambda n: True)
@@ -288,14 +288,14 @@ def check_picture(picture,observation):
         constrain(Or(*[And(l[i],r[j]) for (mandatory,l,r) in picture_containment ]))
     for (mandatory,l,r) in picture_bordering:
         constrain(Implies(mandatory,
-                          Or(*([And(l[i],r[j]) for i,j in observation.bordering ] + 
+                          Or(*([And(l[i],r[j]) for i,j in observation.bordering ] +
                                [And(l[j],r[i]) for i,j in observation.bordering ]))))
     for i,j in observation.bordering:
-        constrain(Or(*([And(l[i],r[j]) for (mandatory,l,r) in picture_bordering ] + 
+        constrain(Or(*([And(l[i],r[j]) for (mandatory,l,r) in picture_bordering ] +
                        [And(l[j],r[i]) for (mandatory,l,r) in picture_bordering ])))
-        
-        
-    
+
+
+
 
 def make_new_input(LZ,LA,LD,LP):
     ss = real_numbers(LS)
@@ -310,7 +310,7 @@ def make_new_input(LZ,LA,LD,LP):
     z = None if LZ == 0 else real()
     if LZ > 0:
         constrain(z < 0.0)
-    
+
     is_linear = LA == 0 and LD == 1
 
     ds = None if is_linear else real_numbers(LD)
@@ -323,12 +323,12 @@ def make_new_input(LZ,LA,LD,LP):
             constrain_angle(iy,ix)
     else:
         ix,iy = None, None
-    return ((0,0,1,0),{"distances": ds, "angles": ts, "positions": ps, 
-                       "shapes": zip(ss,zs), 
+    return ((0,0,1,0),{"distances": ds, "angles": ts, "positions": ps,
+                       "shapes": zip(ss,zs),
                        "scale": z,
                        "jitter-x": jx, "jitter-y": jy,
                        "initial-dx": ix, "initial-dy": iy})
-        
+
 
 def grid_search(observations):
     observations = set_degrees_of_freedom(observations)
@@ -387,7 +387,7 @@ def grid_search(observations):
                     program += "initial-orientation = %f;\n\t" % a
                     if not is_linear:
                         for d in range(LD):
-                            program = program + ("l[%s] = %f; " % (str(d), 
+                            program = program + ("l[%s] = %f; " % (str(d),
                                                                    extract_real(m,inputs[n][1]['distances'][d])))
                     else:
                         program += "l[0] = %f" % (math.sqrt(dx*dx+dy*dy))
@@ -415,7 +415,7 @@ def grid_search(observations):
             kd = extract_real(get_recent_model(),containment_data) if LK > 0 else 0
             bd = extract_real(get_recent_model(),borders_data) if LB > 0 else 0
             solutions.append((m,p,LZ,LA,LD,LP,get_solver(),draw_picture,containment,kd,borders,bd))
-    print 'Total solver time doing grid search:',total_grid_search_time        
+    print 'Total solver time doing grid search:',total_grid_search_time
     return solutions
 
 
@@ -423,15 +423,15 @@ def compute_picture_likelihoods(observations,test_observations):
     observations = load_pictures(observations,show = VERBOSE)
     test_observations = load_pictures(test_observations)
     solutions = grid_search(observations)
-    
+
     # Failure to synthesize any program
     if len(solutions) == 0:
         return float('-inf'), [float('-inf')]*len(test_observations)
-        
+
     (m,p,LZ,LA,LD,LP,solver,gen,k,kd,b,bd) = min(solutions)
     LI = LD > 0 # initial rotation
     marginal = -m
-    
+
     set_solver(solver)
     test_likelihoods = []
     for test in test_observations:
@@ -454,7 +454,7 @@ def compute_picture_likelihoods(observations,test_observations):
             test_likelihoods.append(float('-inf'))
         pop_solver()
     return marginal,test_likelihoods
-        
+
 if __name__ == '__main__':
     observations,test_observations = parse_arguments()
     print compute_picture_likelihoods(observations,test_observations)
