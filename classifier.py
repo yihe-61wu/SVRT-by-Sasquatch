@@ -22,8 +22,9 @@ def run_output(training,test = []):
 
 def classifier_accuracies(positive_paths, negative_paths, N=3, S=20, seed=450998):
     # Store the random number state to restore later
-    rng_state = random.getstate()
-    random.seed(seed)
+    if seed is not None:
+        rng_state = random.getstate()
+        random.seed(seed)
 
     positives = positive_paths
     negatives = negative_paths
@@ -61,14 +62,16 @@ def classifier_accuracies(positive_paths, negative_paths, N=3, S=20, seed=450998
     accuracy = sum(accuracies)/float(S)
     error = variance(accuracies)
 
-    random.setstate(rng_state)
+    if seed is not None:
+        random.setstate(rng_state)
     return accuracies
 #    return accuracy,math.sqrt(error/float(S))
 
 def Bayesian_classifier(positive_paths, negative_paths, N=3, S=20, seed=450998):
     # Store the random number state to restore later
-    rng_state = random.getstate()
-    random.seed(seed)
+    if seed is not None:
+        rng_state = random.getstate()
+        random.seed(seed)
 
     positives = positive_paths
     negatives = negative_paths
@@ -120,7 +123,8 @@ def Bayesian_classifier(positive_paths, negative_paths, N=3, S=20, seed=450998):
         else:
             accuracies.append(1)
 
-    random.setstate(rng_state)
+    if seed is not None:
+        random.setstate(rng_state)
     return accuracies
 
 
