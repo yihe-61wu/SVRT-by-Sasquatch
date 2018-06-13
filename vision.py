@@ -171,8 +171,8 @@ def define_grammar(LZ,LP,LD,LA):
     rule('LOCATE', ['POSITION'],
          lambda m, p: "(teleport %s)" % p,
          lambda (t,i), (p, q): (p,q,
-                                i['initial-dx'] if i['initial-dx'] else 1.0,
-                                i['initial-dy'] if i['initial-dy'] else 0.0))
+                                i['initial-dx'] if i['initial-dx'] is not None else 1.0,
+                                i['initial-dy'] if i['initial-dy'] is not None else 0.0))
     rule('LOCATE', ['FLIP'],
          lambda m, f: f,
          lambda (t,i), f: f)
@@ -194,8 +194,8 @@ def define_grammar(LZ,LP,LD,LA):
     rule('INITIALIZE',[],
          lambda m: "(teleport r[0])",
          lambda (t,i): (i['positions'][0][0],i['positions'][0][1],
-                        i['initial-dx'] if i['initial-dx'] else 1.0,
-                        i['initial-dy'] if i['initial-dy'] else 0.0))
+                        i['initial-dx'] if i['initial-dx'] is not None else 1.0,
+                        i['initial-dy'] if i['initial-dy'] is not None else 0.0))
     rule('INITIAL-SHAPE',[],
          lambda m: '(draw s[0])',
          lambda (t,i): i['shapes'][0])
