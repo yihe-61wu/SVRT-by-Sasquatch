@@ -93,6 +93,7 @@ def constrain_angle(dx,dy):
 def extract_real(m,r):
     if m[r] == None:
         print r
+        return 0.0
     return float(m[r].as_decimal(3).replace('?',''))
 def extract_int(m,i):
     return m[i].as_long()
