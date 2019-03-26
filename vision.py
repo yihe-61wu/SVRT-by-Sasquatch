@@ -340,7 +340,7 @@ def grid_search(observations):
         borders,borders_length,borders_printer = imperative_generator('TOPOLOGY-BORDERS',LB)
         borders = borders(None,None)
         borders_data = summation([ If(t[0],0,logarithm(2)) for t in borders ])
-        dataMDL = len(observations)*(MDL_REAL*(math.fabs(LZ)+LA+LD+2*LP+LI)+MDL_SHAPE*LS+containment_data+borders_data)
+        dataMDL = len(observations)*(MDL_REAL*((2-math.fabs(LZ))+LA+LD+2*LP+LI)+MDL_SHAPE*LS+containment_data+borders_data)
         mdl = summation([mdl,dataMDL,containment_length,borders_length])
 
         # Push a frame to hold all of the training data
@@ -436,7 +436,7 @@ def compute_picture_likelihoods(observations,test_observations):
                                   b),
                       test)
         if 'sat' == str(solver.check()):
-            test_likelihoods.append(-(MDL_REAL*(math.fabs(LZ)+LA+LD+2*LP+LI)+MDL_SHAPE*LS+kd+bd))
+            test_likelihoods.append(-(MDL_REAL*((2-math.fabs(LZ))+LA+LD+2*LP+LI)+MDL_SHAPE*LS+kd+bd))
         else:
             test_likelihoods.append(float('-inf'))
         pop_solver()
