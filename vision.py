@@ -17,7 +17,7 @@ LK = 0 # latent containments
 LB = 0 # latent borders
 LS = 0 # latent shapes
 
-VERBOSE = True
+VERBOSE = False
 def vision_verbosity(v):
     global VERBOSE
     VERBOSE = v
@@ -27,19 +27,13 @@ class Shape():
         self.x = x
         self.y = y
         self.name = name
-        # convert the logarithmic scale
-        if isinstance(scale,float):
-            if scale > 0.0:
-                scale = math.log(scale)
-            if scale > math.log(0.98):
-                scale = 0.0
         self.scale = scale
     def convert_to_tuple(self):
         return (self.x,self.y,self.name,self.scale)
     def __str__(self):
         if self.scale == 0.0:
             return "%i@(%i,%i)" % (self.name,self.x,self.y)
-        return "%i@(%i,%i)x%f" % (self.name, self.x, self.y, math.exp(self.scale))
+        return "%i@(%i,%i)x%f" % (self.name, self.x, self.y, self.scale)
 
 
 class Observation:
@@ -206,16 +200,16 @@ def define_grammar(LZ,LP,LD,LA):
     rule('SHAPE',['SHAPE-INDEX'],
          lambda m,i: '(draw %s)' % i,
          lambda i,s: s)
-    if LZ > 0:
+    if LZ > -2:
         rule('SHAPE',['SHAPE-INDEX','SHAPE-SIZE'],
              lambda m,i,z: '(draw %s :scale z)' % i,
-             lambda i,s,z: (s[0],z+s[1]))
+             lambda i,s,z: (s[0],s[1]*z))
         rule('SHAPE-SIZE',[],
              lambda m: '',
              lambda (t,i): i['scale'])
         rule('INITIAL-SHAPE',['SHAPE-SIZE'],
              lambda m,z: '(draw s[0] :scale z)',
-             lambda (t,i),z: (i['shapes'][0][0],i['shapes'][0][1]+z))
+             lambda (t,i),z: (i['shapes'][0][0],i['shapes'][0][1]*z))
 
     rule('DRAW-ACTION',['LOCATE','SHAPE'],
          lambda m,l,s: l + "\n" + s,
@@ -296,9 +290,13 @@ def make_new_input(LZ,LA,LD,LP):
     constrain(jy < JITTER)
     constrain(jy > -JITTER)
     ps = [ (real(), real()) for j in range(LP) ]
-    z = None if LZ == 0 else real()
-    if LZ > 0:
+    z = None if LZ == -2 else real()
+    if LZ == -1:
+        constrain(z >= -1.0)
         constrain(z < 0.0)
+    if LZ == 1:
+        constrain(z > 0.0)
+        constrain(z <= 1.0)
 
     is_linear = LA == 0 and LD == 1
 
@@ -325,7 +323,7 @@ def grid_search(observations):
     solutions = []
 
     total_grid_search_time = 0
-    for LZ,LA,LD,LP in [(z,a,d,p) for z in [0,1]  for a in [0,1] for d in [0,1,2] for p in range(1,picture_size+1) ]:
+    for LZ,LA,LD,LP in [(z,a,d,p) for z in [-2,-1,1]  for a in [0,1] for d in [0,1,2] for p in range(1,picture_size+1) ]:
         # make sure that the latent dimensions make sense
         if LA > LD: continue
         if LP + LD > picture_size: continue
@@ -342,7 +340,7 @@ def grid_search(observations):
         borders,borders_length,borders_printer = imperative_generator('TOPOLOGY-BORDERS',LB)
         borders = borders(None,None)
         borders_data = summation([ If(t[0],0,logarithm(2)) for t in borders ])
-        dataMDL = len(observations)*(MDL_REAL*(LZ+LA+LD+2*LP+LI)+MDL_SHAPE*LS+containment_data+borders_data)
+        dataMDL = len(observations)*(MDL_REAL*((2-math.fabs(LZ))+LA+LD+2*LP+LI)+MDL_SHAPE*LS+containment_data+borders_data)
         mdl = summation([mdl,dataMDL,containment_length,borders_length])
 
         # Push a frame to hold all of the training data
@@ -389,8 +387,8 @@ def grid_search(observations):
                 for sh in range(LS):
                     program = program + ("s[%i] = %f; " % (sh, extract_real(m,inputs[n][1]['shapes'][sh][0])))
                     program = program + ("s_scale[%i] = %f; " % (sh, extract_real(m,inputs[n][1]['shapes'][sh][1])))
-                if LZ > 0:
-                    program += "\n\tz = %f" % math.exp(extract_real(m,inputs[n][1]['scale']))
+                if LZ > -2:
+                    program += "\n\tz = %f" % extract_real(m,inputs[n][1]['scale'])
                 program = program + "\n"
             return program
 
@@ -438,7 +436,7 @@ def compute_picture_likelihoods(observations,test_observations):
                                   b),
                       test)
         if 'sat' == str(solver.check()):
-            test_likelihoods.append(-(MDL_REAL*(LZ+LA+LD+2*LP+LI)+MDL_SHAPE*LS+kd+bd))
+            test_likelihoods.append(-(MDL_REAL*((2-math.fabs(LZ))+LA+LD+2*LP+LI)+MDL_SHAPE*LS+kd+bd))
         else:
             test_likelihoods.append(float('-inf'))
         pop_solver()
